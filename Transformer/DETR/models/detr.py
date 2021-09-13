@@ -70,7 +70,7 @@ class DETR(nn.Module):
         if self.aux_loss:
             out['aux_outputs'] = self._set_aux_loss(outputs_class, outputs_coord)
         return out
-
+        
     @torch.jit.unused
     def _set_aux_loss(self, outputs_class, outputs_coord):
         # this is a workaround to make torchscript happy, as torchscript
@@ -322,13 +322,21 @@ def build(args):
     device = torch.device(args.device)
 
     #
-    # Building the backbone layer from build_bakcbone fuction.
+    # Building the backbone layer from build_bakcbone function.
     # detr.py -> backbone.py
     #
     backbone = build_backbone(args)
 
+    #
+    # Buliding the transformer layer from build_transformer function.
+    # detr.py -> transformer.py
+    #
+
     transformer = build_transformer(args)
 
+    #
+    # Building the actual DETR model
+    #
     model = DETR(
         backbone,
         transformer,
@@ -337,7 +345,14 @@ def build(args):
         aux_loss=args.aux_loss,
     )
     if args.masks:
+        #
+        # using convolutional head. Why????
+        #  
         model = DETRsegm(model, freeze_detr=(args.frozen_weights is not None))
+    
+    #
+    # Building the Hungarian matcher.
+    #
     matcher = build_matcher(args)
     weight_dict = {'loss_ce': 1, 'loss_bbox': args.bbox_loss_coef}
     weight_dict['loss_giou'] = args.giou_loss_coef

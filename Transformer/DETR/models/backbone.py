@@ -1,6 +1,7 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 """
 Backbone modules.
+ResNet Module
 """
 from collections import OrderedDict
 
@@ -56,6 +57,9 @@ class FrozenBatchNorm2d(torch.nn.Module):
 
 
 class BackboneBase(nn.Module):
+    """
+    The Base of ResNet
+    """
 
     def __init__(self, backbone: nn.Module, train_backbone: bool, num_channels: int, return_interm_layers: bool):
         super().__init__()
@@ -94,6 +98,7 @@ class Backbone(BackboneBase):
 
 
 class Joiner(nn.Sequential):
+    """Joining class with backbone module and position_encoding. In this case ResNet."""
     def __init__(self, backbone, position_embedding):
         super().__init__(backbone, position_embedding)
 
@@ -110,6 +115,9 @@ class Joiner(nn.Sequential):
 
 
 def build_backbone(args):
+    #
+    # backbone.py -> position_encoding.py
+    #
     position_embedding = build_position_encoding(args)
     train_backbone = args.lr_backbone > 0
     return_interm_layers = args.masks

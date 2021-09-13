@@ -1,9 +1,10 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 """
 This file provides the definition of the convolutional heads used to predict masks, as well as the losses
+It can be extended to panoptic segmentation.
 """
 import io
-from collections import defaultdict
+from collections import defaultdict 
 from typing import List, Optional
 
 import torch
@@ -176,7 +177,7 @@ def dice_loss(inputs, targets, num_boxes):
         inputs: A float tensor of arbitrary shape.
                 The predictions for each example.
         targets: A float tensor with the same shape as inputs. Stores the binary
-                 classification label for each element in inputs
+                classification label for each element in inputs
                 (0 for the negative class and 1 for the positive class).
     """
     inputs = inputs.sigmoid()
@@ -194,12 +195,12 @@ def sigmoid_focal_loss(inputs, targets, num_boxes, alpha: float = 0.25, gamma: f
         inputs: A float tensor of arbitrary shape.
                 The predictions for each example.
         targets: A float tensor with the same shape as inputs. Stores the binary
-                 classification label for each element in inputs
+                classification label for each element in inputs
                 (0 for the negative class and 1 for the positive class).
         alpha: (optional) Weighting factor in range (0,1) to balance
                 positive vs negative examples. Default = -1 (no weighting).
         gamma: Exponent of the modulating factor (1 - p_t) to
-               balance easy vs hard examples.
+                balance easy vs hard examples.
     Returns:
         Loss tensor
     """
@@ -245,9 +246,9 @@ class PostProcessPanoptic(nn.Module):
     def __init__(self, is_thing_map, threshold=0.85):
         """
         Parameters:
-           is_thing_map: This is a whose keys are the class ids, and the values a boolean indicating whether
-                          the class is  a thing (True) or a stuff (False) class
-           threshold: confidence threshold: segments with confidence lower than this will be deleted
+            is_thing_map: This is a whose keys are the class ids, and the values a boolean indicating whether
+                        the class is  a thing (True) or a stuff (False) class
+            threshold: confidence threshold: segments with confidence lower than this will be deleted
         """
         super().__init__()
         self.threshold = threshold
@@ -258,9 +259,9 @@ class PostProcessPanoptic(nn.Module):
         Parameters:
             outputs: This is a dict coming directly from the model. See the model doc for the content.
             processed_sizes: This is a list of tuples (or torch tensors) of sizes of the images that were passed to the
-                             model, ie the size after data augmentation but before batching.
+                            model, ie the size after data augmentation but before batching.
             target_sizes: This is a list of tuples (or torch tensors) corresponding to the requested final size
-                          of each prediction. If left to None, it will default to the processed_sizes
+                            of each prediction. If left to None, it will default to the processed_sizes
             """
         if target_sizes is None:
             target_sizes = processed_sizes

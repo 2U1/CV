@@ -16,6 +16,7 @@ from torch import nn, Tensor
 
 
 class Transformer(nn.Module):
+    """Defining the transformer model."""
 
     def __init__(self, d_model=512, nhead=8, num_encoder_layers=6,
                 num_decoder_layers=6, dim_feedforward=2048, dropout=0.1,
@@ -60,6 +61,7 @@ class Transformer(nn.Module):
 
 
 class TransformerEncoder(nn.Module):
+    """Encoder for the transformer model. It's like a template. The actual layer is defined below."""
 
     def __init__(self, encoder_layer, num_layers, norm=None):
         super().__init__()
@@ -84,6 +86,7 @@ class TransformerEncoder(nn.Module):
 
 
 class TransformerDecoder(nn.Module):
+    """Decoder for the transformer model. It's like a template. The actual layer is defined below."""
 
     def __init__(self, decoder_layer, num_layers, norm=None, return_intermediate=False):
         super().__init__()
@@ -125,6 +128,7 @@ class TransformerDecoder(nn.Module):
 
 
 class TransformerEncoderLayer(nn.Module):
+    """Layer for the transformer encoder."""
 
     def __init__(self, d_model, nhead, dim_feedforward=2048, dropout=0.1,
                 activation="relu", normalize_before=False):
@@ -185,6 +189,7 @@ class TransformerEncoderLayer(nn.Module):
 
 
 class TransformerDecoderLayer(nn.Module):
+    """Layer for the transformer decoder."""
 
     def __init__(self, d_model, nhead, dim_feedforward=2048, dropout=0.1,
                 activation="relu", normalize_before=False):
@@ -218,7 +223,7 @@ class TransformerDecoderLayer(nn.Module):
                     query_pos: Optional[Tensor] = None):
         q = k = self.with_pos_embed(tgt, query_pos)
         tgt2 = self.self_attn(q, k, value=tgt, attn_mask=tgt_mask,
-                              key_padding_mask=tgt_key_padding_mask)[0]
+                                key_padding_mask=tgt_key_padding_mask)[0]
         tgt = tgt + self.dropout1(tgt2)
         tgt = self.norm1(tgt)
         tgt2 = self.multihead_attn(query=self.with_pos_embed(tgt, query_pos),
@@ -270,6 +275,7 @@ class TransformerDecoderLayer(nn.Module):
 
 
 def _get_clones(module, N):
+    """It clones the Layer in the Encoder or Decoder."""
     return nn.ModuleList([copy.deepcopy(module) for i in range(N)])
 
 

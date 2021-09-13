@@ -135,6 +135,9 @@ def main(args):
     model.to(device)
 
     model_without_ddp = model
+    #
+    # Setting it to pararell computing.
+    #
     if args.distributed:
         model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu])
         model_without_ddp = model.module
@@ -149,7 +152,9 @@ def main(args):
         },
     ]
 
+    #
     # Using adam optimizer for the model
+    #
     optimizer = torch.optim.AdamW(param_dicts, lr=args.lr,
                                 weight_decay=args.weight_decay)
     lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, args.lr_drop)
@@ -208,6 +213,9 @@ def main(args):
     for epoch in range(args.start_epoch, args.epochs):
         if args.distributed:
             sampler_train.set_epoch(epoch)
+        # 
+        # main.py -> engine.py
+        #
         train_stats = train_one_epoch(
             model, criterion, data_loader_train, optimizer, device, epoch,
             args.clip_max_norm)

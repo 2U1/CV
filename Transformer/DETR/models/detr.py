@@ -164,6 +164,7 @@ class SetCriterion(nn.Module):
     def loss_masks(self, outputs, targets, indices, num_boxes):
         """ Compute the losses related to the masks: the focal loss and the dice loss.
             targets dicts must contain the key "masks" containing a tensor of dim [nb_target_boxes, h, w]
+            The focal loss and dice loss can help to increase the panoptic segmentation performances.
         """
         assert "pred_masks" in outputs
 
@@ -287,7 +288,7 @@ class PostProcess(nn.Module):
 
 
 class MLP(nn.Module):
-    """ Very simple multi-layer perceptron (also called FFN)"""
+    """ Very simple multi-layer perceptron (also called FFN) """
 
     def __init__(self, input_dim, hidden_dim, output_dim, num_layers):
         super().__init__()
@@ -302,7 +303,7 @@ class MLP(nn.Module):
 
 
 #
-# Building model with the fuction build.
+# Building model with the function build.
 #
 
 def build(args):

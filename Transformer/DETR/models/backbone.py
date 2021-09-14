@@ -24,6 +24,15 @@ class FrozenBatchNorm2d(torch.nn.Module):
     Copy-paste from torchvision.misc.ops with added eps before rqsrt,
     without which any other models than torchvision.models.resnet[18,34,50,101]9
     produce nans.
+
+    When fine-tuning on a new dataset, batch statistics are likely to be very different if fine-tuning examples have
+    different characteristics to examples in the original training dataset.
+    Therefore, if batch normalization is not frozen, the network will learn new batch normalization parameters
+    (gamma and beta in the batch normalization paper) that are different to what the other network paramaters
+    have been optimised for during the original training.
+    Relearning all the other network parameters is often undesirable during fine-tuning,
+    either due to the required training time or small size of the fine-tuning dataset.
+    Freezing batch normalization avoids this issue.
     """
 
     def __init__(self, n):
@@ -96,7 +105,7 @@ class Backbone(BackboneBase):
 
 
 class Joiner(nn.Sequential):
-    """Joining class with backbone module and position_encoding. In this case ResNet."""
+    """ Joining class with backbone module and position_encoding. In this case ResNet. """
     def __init__(self, backbone, position_embedding):
         super().__init__(backbone, position_embedding)
 

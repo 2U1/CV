@@ -136,7 +136,7 @@ def main(args):
 
     model_without_ddp = model
     #
-    # Setting it to pararell computing.
+    # Setting it to parallel computing.
     #
     if args.distributed:
         model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu])

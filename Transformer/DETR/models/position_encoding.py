@@ -51,6 +51,8 @@ class PositionEmbeddingSine(nn.Module):
 class PositionEmbeddingLearned(nn.Module):
     """
     Absolute pos embedding, learned.
+
+    It makes the model can learn the values of position embedding tensor
     """
     def __init__(self, num_pos_feats=256):
         super().__init__()

@@ -17,6 +17,9 @@ from datasets.panoptic_eval import PanopticEvaluator
 def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
                     data_loader: Iterable, optimizer: torch.optim.Optimizer,
                     device: torch.device, epoch: int, max_norm: float = 0):
+    #
+    # Training function it's for only one epoch
+    #
     model.train()
     criterion.train()
     metric_logger = utils.MetricLogger(delimiter="  ")
@@ -66,6 +69,9 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
 
 @torch.no_grad()
 def evaluate(model, criterion, postprocessors, data_loader, base_ds, device, output_dir):
+    #
+    # Evaluation function
+    #
     model.eval()
     criterion.eval()
 

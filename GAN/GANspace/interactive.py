@@ -394,6 +394,11 @@ def recompute_components():
     load_components(class_name, inst)
 
 # Used to detect parameter changes for lazy recomputation
+
+
+#
+# Lazy Computation is method in computer science that postpone the computation until the result is used.
+#
 class ParamCache():
     def update(self, **kwargs):
         dirty = False

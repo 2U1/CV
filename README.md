@@ -7,4 +7,6 @@ Organizing and annotating the codes from the paper.
     ├──   README.md
     ├── Transformer
     │     └── DETR
+    ├── GAN
+    │     └── GANSapce
 ```

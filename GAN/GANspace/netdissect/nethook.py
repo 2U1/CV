@@ -15,6 +15,7 @@ from collections import OrderedDict
 class InstrumentedModel(torch.nn.Module):
     '''
     A wrapper for hooking, probing and intervening in pytorch Modules.
+
     Example usage:
 
     ```

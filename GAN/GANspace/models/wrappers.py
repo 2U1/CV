@@ -25,6 +25,12 @@ from abc import abstractmethod, ABC as AbstractBaseClass
 from functools import singledispatch
 
 class BaseModel(AbstractBaseClass, torch.nn.Module):
+    """This Class is for only inheritance. 
+
+    It's like a template.
+    The abstractmodel decorater means it need to be the defined in sub class.
+    
+    """
 
     # Set parameters for identifying model from instance
     def __init__(self, model_name, class_name):
@@ -436,9 +442,13 @@ class StyleGAN(BaseModel):
         for_each_child(G, 'g_synthesis', modify)
 
 class GANZooModel(BaseModel):
+    """A GAN toolbox for researchers and developers with, progan, dcgan, stylegan."""
     def __init__(self, device, model_name):
         super(GANZooModel, self).__init__(model_name, 'default')
         self.device = device
+        #
+        # Loading pretrained model for gan-zoo
+        #
         self.base_model = torch.hub.load('facebookresearch/pytorch_GAN_zoo:hub',
             model_name, pretrained=True, useGPU=(device.type == 'cuda'))
         self.model = self.base_model.netG.to(self.device)
@@ -647,10 +657,16 @@ class BigGAN(BaseModel):
 
         return None
 
+#
+# Defining a generic function.
+#
 # Version 1: separate parameters
 @singledispatch
 def get_model(name, output_class, device, **kwargs):
     # Check if optionally provided existing model can be reused
+    #
+    # Selecting model from definded above.
+    #
     inst = kwargs.get('inst', None)
     model = kwargs.get('model', None)
     

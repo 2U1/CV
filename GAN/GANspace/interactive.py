@@ -85,6 +85,9 @@ def load_components(class_name, inst):
 
 # Load previously exported named components from
 # directory specified with '--inputs=path/to/comp'
+#
+# This component is already trained and got a name
+#  
 def load_named_components(path, class_name):
     global components, state, use_named_latents
 
@@ -129,10 +132,15 @@ def load_named_components(path, class_name):
     print('Loaded named components')
 
 def setup_model():
+    #
+    # Setting up the model
+    #
     global model, inst, layer_name, model_name, feat_shape, args, class_name
 
     model_name = args.model
     layer_name = args.layer
+    # class name is for the latent vector that is named.
+    # Need name for what the vector does.
     class_name = args.output_class
 
     # Speed up pytorch
@@ -140,6 +148,7 @@ def setup_model():
     torch.backends.cudnn.benchmark = True
 
     # Load model
+    # Instrumentation feature(not the ML/DL feature) for tracking the error or performace of software.
     inst = get_instrumented_model(model_name, class_name, layer_name, torch.device('cuda'), use_w=args.use_w)
     model = inst.model
 
@@ -158,6 +167,9 @@ def project_ortho(X, comp):
     coords = (comp.reshape(N, -1) * X.reshape(-1)).sum(dim=1)
     return coords.reshape([N]+[1]*X.ndim)
 
+#
+# From now on setting the UI for showing up.
+#
 def zero_sliders():
     for v in ui_state.sliders:
         v.set(0.0)

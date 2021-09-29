@@ -149,6 +149,11 @@ if __name__ == '__main__':
     outdir = basedir / 'out'
 
     # Load model
+    
+    #
+    # instrumented model is defined in nethook
+    # -> nethook.py
+    #
     inst = get_instrumented_model(args.model, args.output_class, layer_key, device, use_w=args.use_w)
     model = inst.model
     feature_shape = inst.feature_shape[layer_key]

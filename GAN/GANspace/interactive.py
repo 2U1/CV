@@ -91,6 +91,7 @@ def load_components(class_name, inst):
 def load_named_components(path, class_name):
     global components, state, use_named_latents
 
+
     import glob
     matches = glob.glob(f'{path}/*.pkl')
 
@@ -412,8 +413,10 @@ class ParamCache():
 
 cache = ParamCache()
 
+
 def l2norm(t):
     return torch.norm(t.view(t.shape[0], -1), p=2, dim=1, keepdim=True)
+
 
 def apply_edit(z0, delta):
     return z0 + delta
@@ -487,7 +490,7 @@ def on_draw():
             # Evaluate
             has_offsets = any(torch.is_tensor(t) for t in z_deltas)
             z_final = apply_edit(z_base, z_delta_global)
-            if has_offsets:
+            if has_offsets: 
                 z_final = [apply_edit(z_final, d) for d in z_deltas]
             img = model.forward(z_final).clamp(0.0, 1.0)
 

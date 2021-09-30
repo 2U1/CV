@@ -731,10 +731,9 @@ def get_instrumented_model(name, output_class, layers, device, **kwargs):
         model.use_z()
 
 
-    #
-    # -> modelconfig.py
-    #
-
+    # 
+    # Go modelconfig.py
+    # 
     from netdissect.modelconfig import create_instrumented_model
     inst = create_instrumented_model(SimpleNamespace(
         model = model,

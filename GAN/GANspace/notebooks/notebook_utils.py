@@ -123,6 +123,7 @@ def _create_strip_batch_lat(inst, mode, layer, latents, x_comp, z_comp, act_stde
         if len(zs) == 0:
             continue
         
+        # Flatten the latent to sample
         z_batch_single = torch.cat(zs, 0)
 
         inst.close() # don't retain, remove edits
@@ -136,6 +137,7 @@ def _create_strip_batch_lat(inst, mode, layer, latents, x_comp, z_comp, act_stde
             if mode == 'activation':
                 # Center along activation before applying offset
                 inst.retain_layer(layer)
+                # Generate images and convert to numpy using sample_np func
                 _ = inst.model.sample_np(z_batch_single)
                 value = inst.retained_features()[layer].clone()
                 dotp = torch.sum((value - act_mean)*normalize(x_comp), dim=-1, keepdim=True)

@@ -31,7 +31,7 @@ import argparse
 from tqdm import trange
 from config import Config
 from decomposition import get_random_dirs, get_or_compute, get_max_batch_size, SEED_VISUALIZATION
-from utils import pad_frames 
+from utils import pad_frames
 
 def x_closest(p):
     distances = np.sqrt(np.sum((X - p)**2, axis=-1))
@@ -143,15 +143,16 @@ if __name__ == '__main__':
     has_gpu = torch.cuda.is_available()
     device = torch.device('cuda' if has_gpu else 'cpu')
     layer_key = args.layer
-    layer_name = layer_key #layer_key.lower().split('.')[-1]
+    layer_name = layer_key # layer_key.lower().split('.')[-1]
 
     basedir = Path(__file__).parent.resolve()
     outdir = basedir / 'out'
 
     # Load model
-    
+
     #
     # instrumented model is defined in nethook
+    # -> wrappers.py
     # -> nethook.py
     #
     inst = get_instrumented_model(args.model, args.output_class, layer_key, device, use_w=args.use_w)

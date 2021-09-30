@@ -44,6 +44,7 @@ def create_instrumented_model(args, **kwargs):
         model = args.model
     else:
         model = autoimport_eval(args.model)
+    
     # Unwrap any DataParallel-wrapped model
     if isinstance(model, torch.nn.DataParallel):
         model = next(model.children())
@@ -61,18 +62,17 @@ def create_instrumented_model(args, **kwargs):
         submodule = getattr(args, 'submodule', None)
         if submodule is not None and len(submodule):
             remove_prefix = submodule + '.'
-            data = { k[len(remove_prefix):]: v for k, v in data.items()
-                    if k.startswith(remove_prefix)}
+            data = {k[len(remove_prefix):]: v for k, v in data.items() if k.startswith(remove_prefix)}
             if not len(data):
-                print_progress('No submodule %s found in %s' %
-                        (submodule, args.pthfile))
+                print_progress('No submodule %s found in %s' % (submodule, args.pthfile))
                 return None
         model.load_state_dict(data, strict=not getattr(args, 'unstrict', False))
 
+    # This part is for prefixed layers that model not instrument
     # Decide which layers to instrument.
     if getattr(args, 'layer', None) is not None:
         args.layers = [args.layer]
-    if getattr(args, 'layers', None) is None:
+    if getattr(args, 'layers', None) is None: 
         # Skip wrappers with only one named model
         container = model
         prefix = ''
@@ -80,7 +80,7 @@ def create_instrumented_model(args, **kwargs):
             name, container = next(container.named_children())
             prefix += name + '.'
         # Default to all nontrivial top-level layers except last.
-        args.layers = [prefix + name
+        args.layers = [prefix + name 
                 for name, module in container.named_children()
                 if type(module).__module__ not in [
                     # Skip ReLU and other activations.
@@ -91,6 +91,7 @@ def create_instrumented_model(args, **kwargs):
         print_progress('Defaulting to layers: %s' % ' '.join(args.layers))
 
     # Now wrap the model for instrumentation.
+    # Go nethook.py
     model = InstrumentedModel(model)
     model.meta = meta
 

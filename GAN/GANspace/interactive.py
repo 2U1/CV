@@ -395,8 +395,6 @@ def recompute_components():
     load_components(class_name, inst)
 
 # Used to detect parameter changes for lazy recomputation
-
-
 #
 # Lazy Computation is method in computer science that postpone the computation until the result is used.
 #
@@ -420,6 +418,7 @@ def l2norm(t):
 
 def apply_edit(z0, delta):
     return z0 + delta
+
 
 def reposition_toolbar():
     size, X, Y = root.winfo_geometry().split('+')

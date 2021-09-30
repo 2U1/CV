@@ -50,7 +50,7 @@ class InstrumentedModel(torch.nn.Module):
 
     def retain_layer(self, layername):
         '''
-        Pass a fully-qualified layer name (E.g., module.submodule.conv3)
+        Pass a full y-qualified layer name (E.g., module.submodule.conv3)
         to hook that layer and retain its output each time the model is run.
         A pair (layername, aka) can be provided, and the aka will be used
         as the key for the retained value instead of the layername.

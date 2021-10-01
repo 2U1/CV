@@ -6,7 +6,7 @@
 
 ### Results example of visualize.py 
 ### Run on 29/09/2021
-![teaser](GANspace/out/StyleGAN-ffhq/g_mapping/ipca/summ/components_W.jpg)
+![teaser](./GANspace/out/StyleGAN-ffhq/g_mapping/ipca/summ/components_W.jpg)
 
 <br>
 <br>
@@ -14,6 +14,6 @@
 ### Results example of interactive.py
 ### Run on 29/09/2021
 <p float="left">
-    <img src="InteractiveResult.png" width="360"/>
-    <img src="InteractiveChange.png" width="360"/>
+    <img src="./InteractiveResult.png" width="360"/>
+    <img src="./InteractiveChange.png" width="360"/>
 </p>

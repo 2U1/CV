@@ -123,7 +123,7 @@ def load(name: str, device: Union[str, torch.device] = "cuda" if torch.cuda.is_a
 
     try:
         # loading JIT archive
-        # torch.jit.load can make to get both architectures and weights 
+        # torch.jit.load can make to get both architectures and weights
         model = torch.jit.load(model_path, map_location=device if jit else "cpu").eval()
         state_dict = None
     except RuntimeError:

@@ -1,11 +1,7 @@
-# Latest Update : 22 June 2021, 09:55 GMT+7
-
-# TO ADD :
-# Gradient Checkpointing
-# Filter out bias from weight decay
-# Decaying learning rate with cosine schedule
-# Half-precision Adam statistics
-# Half-precision stochastically rounded text encoder weights were used
+# filter out bias from weight decay
+# decaying learning rate with cosine schedule
+# half-precision Adam statistics
+# half-precision stochastically rounded text encoder weights were used
 
 import torch
 import torch.nn as nn

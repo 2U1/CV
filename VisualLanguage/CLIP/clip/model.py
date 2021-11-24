@@ -9,6 +9,7 @@ from torch import nn
 
 class Bottleneck(nn.Module):
     # downsample 생성 여부 확인을 위한 변수
+    # Tracking for downsampling variable.
     expansion = 4
 
     def __init__(self, inplanes, planes, stride=1):
@@ -33,12 +34,14 @@ class Bottleneck(nn.Module):
         if stride > 1 or inplanes != planes * Bottleneck.expansion:
             # downsampling layer is prepended with an avgpool, and the subsequent convolution has stride 1
             # stride 및 in_channels, out_channels의 입력이 default와 다르면 downsample을 정의하여 아웃풋에 더해줌
+            # If input of  stride, in_channels, out_channels differs from default values, it defines downsample and add to output.
             self.downsample = nn.Sequential(OrderedDict([("-1", nn.AvgPool2d(stride)),
                                                          ("0", nn.Conv2d(inplanes, planes * self.expansion, 1, stride=1, bias=False)),
                                                          ("1", nn.BatchNorm2d(planes * self.expansion))]))
 
     def forward(self, x: torch.Tensor):
         """ 컨볼루션, 배치 정규화, 렐루, 풀링 계속 3번 거쳐서 결과 반환 """
+        """ Returns result that passed three layers of convolution, batch norm, relu and pooling"""
 
         identity = x
 
@@ -58,6 +61,7 @@ class Bottleneck(nn.Module):
 
 class AttentionPool2d(nn.Module):
     """ 2D 이미지에 대한 멀티헤드어텐션 연산 """
+    """ Multihead attention about 2D images"""
 
     def __init__(self, spacial_dim: int, embed_dim: int, num_heads: int, output_dim: int = None):
         super().__init__()
@@ -106,7 +110,7 @@ class ModifiedResNet(nn.Module):
     - Performs anti-aliasing strided convolutions, where an avgpool is prepended to convolutions with stride > 1
     - The final pooling layer is a QKV attention instead of an average pool
 
-    레즈넷 안에다 어텐션 과정 넣기 위해서 수정, 나머지는 다 똑같
+    Identical to existing ResNet except adding 2D attention
     """
 
     def __init__(self, layers, output_dim, heads, input_resolution=224, width=64):
@@ -138,6 +142,7 @@ class ModifiedResNet(nn.Module):
 
     def _make_layer(self, planes, blocks, stride=1):
         # 위에서 설정한 개수만큼 레이어를 쌓아올리고, 이를 연결하여 뉴럴 네트워크로 만듬 (nn.Sequential 클래스)
+        # Stack up layers according to the number set above. Make to NN.
         layers = [Bottleneck(self._inplanes, planes, stride)]
 
         self._inplanes = planes * Bottleneck.expansion
@@ -172,6 +177,9 @@ class LayerNorm(nn.LayerNorm):
         """
         입력 텐서의 dtype을 float32로 만들어서 layer normalization 한 다음, 다시 원래 dtype인 float16으로 만들어서 반환
         이유는 아마 backprop을 float16으로 해서 dtype 맞추려는 것으로 추측됨 (메모리 사용량 및 학습 시간 효율화)
+
+        Convert dtype of input tensor to float32 layer normalize then return the tensor in type of float16
+        Reason is maybe matcching the dtype to back propagation.
         """
 
         orig_type = x.dtype
@@ -182,7 +190,6 @@ class LayerNorm(nn.LayerNorm):
 
 class QuickGELU(nn.Module):
     def forward(self, x: torch.Tensor):
-        # 원래 GELU도 느려서 답답했는지 그걸 근사한 함수를 넣음
         return x * torch.sigmoid(1.702 * x)
 
 
@@ -190,6 +197,8 @@ class ResidualAttentionBlock(nn.Module):
     """
     위에서 각각 만들어준 multi-head attention + layer normalization + gelu + residual connection 사이에 mlp 까지 넣어서 삭삭 진행해줌
     레이어 쌓아서 연산할 수 있도록 큰 모듈 하나 만든다고 보면 될 듯
+
+    stack multi-head attention, layer normalization, gelu, residual connection and mlp.
     """
 
     def __init__(self, d_model: int, n_head: int, attn_mask: torch.Tensor = None):
@@ -205,6 +214,7 @@ class ResidualAttentionBlock(nn.Module):
 
     def attention(self, x: torch.Tensor):
         # 어텐션 마스크가 있으면 GPU연산으로 처리
+        # If attention mask exists then calculate on GPU
         self.attn_mask = self.attn_mask.to(dtype=x.dtype, device=x.device) if self.attn_mask is not None else None
 
         return self.attn(x, x, x, need_weights=False, attn_mask=self.attn_mask)[0]
@@ -219,6 +229,7 @@ class ResidualAttentionBlock(nn.Module):
 class Transformer(nn.Module):
     """
     ResidualAttentionBlock 클래스를 layer 개수만큼 여러개 쌓으면 트랜스포머 블록 완성 (논문에서는 인코더로 퉁 침)
+    Complete transformer with number of layers that number set above
     """
 
     def __init__(self, width: int, layers: int, heads: int, attn_mask: torch.Tensor = None):
@@ -234,6 +245,7 @@ class Transformer(nn.Module):
 class VisionTransformer(nn.Module):
     """
     논문에서 이미지 인코더 부분으로, ResNet이랑 ViT랑 실험함
+    Encoder part from paper, trained with ResNet and ViT
     """
 
     def __init__(self, input_resolution: int, patch_size: int, width: int, layers: int, heads: int, output_dim: int):
@@ -281,6 +293,7 @@ class VisionTransformer(nn.Module):
 class CLIP(nn.Module):
     """
     위에서 만든 각각의 모듈들을 연결하여 하나의 모델로 만듬
+    Complete the CLIP model with the modules that defined above
     """
 
     def __init__(self,
@@ -302,6 +315,7 @@ class CLIP(nn.Module):
         self.context_length = context_length
 
         # 입력에 따라 ResNet, ViT 사용하도록 if / else문 사용 (둘 다 이미지 처리용)
+        # Select ResNet or ViT according to input
         if isinstance(vision_layers, (tuple, list)):
             vision_heads = vision_width * 32 // 64
             self.visual = ModifiedResNet(
@@ -323,6 +337,7 @@ class CLIP(nn.Module):
             )
 
         # 텍스트를 처리하는 트랜스포머
+        # Transformer that handles text
         self.transformer = Transformer(
             width=transformer_width,
             layers=transformer_layers,
@@ -341,10 +356,12 @@ class CLIP(nn.Module):
         self.logit_scale = nn.Parameter(torch.ones([]) * np.log(1 / 0.07))
 
         # 기존 ResNet, ViT, Transformer의 학습된 파라미터들 모두 초기화
+        # Reset weights from pre-trained backbone network
         self.initialize_parameters()
 
     def initialize_parameters(self):
         # 파라미터 초기화 함수 (정규 분포로 초기화 해줌, 평균값 입력 안하면 default=0)
+        # initialize with normal distribution
         nn.init.normal_(self.token_embedding.weight, std=0.02)
         nn.init.normal_(self.positional_embedding, std=0.01)
 
@@ -428,6 +445,7 @@ def convert_weights(model: nn.Module):
     Convert applicable model parameters to fp16 
 
     메모리 사용량 및 속도를 위해서 weight tensor를 fp16으로 바꿔줌
+    Convert weight to fp16 for higher efficiency
     """
 
     def _convert_weights_to_fp16(l):
@@ -454,6 +472,7 @@ def convert_weights(model: nn.Module):
 def build_model(state_dict: dict):
     """
     모델 만드는 함수
+    define build model function with CLIP class
     """
 
     vit = "visual.proj" in state_dict
@@ -492,5 +511,7 @@ def build_model(state_dict: dict):
     model.load_state_dict(state_dict)
 
     # eval: nn.Module에서 train과 evaluation에서 다른 작업을 수행할 수 있도록 switching 하는 함수
+    # eval: A function that switches to perform different tasks in train and evaluation in nn.Module 
     # dropout, batchnorm 등의 레이어를 자동으로 off 시키고 backprop이 없음
+    # there is no backprop, and turn-off dropout and batch norm layer automatically
     return model.eval()

@@ -79,6 +79,10 @@ class SimpleTokenizer(object):
     1) subword를 저장해둔 vocab 파일 -> 디코딩, 분리 -> merge 리스트
     2) 알파벳, 특수문자 모두를 포함하는 ASCII 코드 전체랑 merge랑 합쳐 -> vocab 리스트
     3) NLP 트랜스포머 인풋으로는 vocab이 사용될 예정 (=BPE로 토큰화가 된 subword들이 다 들어있는 리스트)
+
+    1) vocab -> decode, split -> merge list (vocab is the file that subwords are saved)
+    2) Merge ASCII code that include alphabet and special chararecters with list name merge and assgin in to a list name vocab 
+    3) Vocab will be used to the input of NLP transformer (=List of subwords that are tokenized with BPE)
     """
 
     def __init__(self, bpe_path: str = default_bpe()):
